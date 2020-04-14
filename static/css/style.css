@@ -507,10 +507,11 @@ body {
     border:  2px solid #031321;
 }
 .advert-title {
-    margin: 10px 3px;
+    margin: 12px 3px;
     text-align: center;
     color: #031321;
     font-weight: bold;
+    font-size: 30px;
 }
 .advert-date {
     color: #031321;
@@ -549,16 +550,20 @@ body {
     flex-direction: row;
     flex-wrap: wrap;
 }
-.comments {
-    margin: 5px 0;
+.comment-title {
+    font-weight: 800;
+    font-size: 30px;
+    margin: 12px 0;
 }
-.comment-title,
 .comment-author {
     font-weight: 800;
+    font-size: 20px;
+    margin: 10px 0;
 }
 .comment-count {
     font-weight: 800;
     font-style: italic;
+    margin: 5px 0;
 }
 .comment {
     position: relative;
