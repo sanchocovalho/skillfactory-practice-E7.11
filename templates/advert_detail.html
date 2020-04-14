@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ advert.title }}{% endblock %}
+
+{% block styles %}
+<link type="text/css" href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <header class="header">
+        <div class="main-box">
+            <div class="user-box">
+                {% if user.is_authenticated %}
+                Привет, {{ user.username }}!
+                {% else %}
+                Привет, гость!
+                {% endif %}
+            </div>
+            <h2 class="page-title">Доска объявлений</h2>
+            <form action="{% url 'ads_app:advert-list' %}">
+                <button class="main-btn" type="submit">Главная</button>
+            </form>
+        </div>
+    </header>
+    <div class="container">
+        <div class="main-content">
+            <div class="advert-box">
+                {%if advert.photo %}
+                <img src="{{ advert.photo.url }}" class="advert-photo" alt="">
+                {% else %}
+                <img src="media/photos/default.jpg" class="advert-photo" alt="">
+                {% endif %}
+                <h2 class="advert-title">{{ advert.title }}</h2>
+                <p class="advert-date">Автор публикации: {{ advert.author }}</p>
+                <p class="advert-date">Категория: {{ advert.category }}</p>
+                <p class="advert-date">Дата публикации: {{ advert.created|date:"d.m.Y H:i" }}</p>
+                {%if advert.updated != advert.created %}
+                    <p class="advert-date">Последнее изменение: {{ advert.updated|date:"d.m.Y H:i" }}</p>
+                {% endif %}
+                <p class="advert-content">{{ advert.content }}</p>
+                {% if tag_list %}
+                <p class="advert-date">Количество тегов: {{ tag_list|length }}</p>
+                <div class="advert-tags">
+                    {% for tag in tag_list %}
+                    <a class="tag-reference" href="/?search={{tag}}&btnSearch=">{{ tag }}</a>
+                    {% endfor %}
+                    {% if user.is_authenticated and user == advert.author or user.is_superuser %}
+                    <button class="add-tag-btn" id="tag-btn">&#9660;</button>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if user.is_authenticated and user == advert.author or user.is_superuser %}
+                <div class="control-box">
+                    <div class="add-tag-box">
+                        <form class="tag-form" method="POST">
+                            {% csrf_token %}
+                            <div class="input-tag-box"><input type="text" class="input-tag" name="tag" placeholder="Введите тег"></div>
+                            <button type="submit" class="create-tag-btn" name="btnAddTag">Добавить</button>
+                        </form>
+                    </div>
+                    <div class="control-btns">
+                        <form action="{% url 'ads_app:advert-update' advert.id %}">
+                            <button class="update-btn">Изменить</button>
+                        </form>
+                        <form action="{% url 'ads_app:advert-delete' advert.id %}">
+                            <button class="delete-btn">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="advert-comments">
+                <h2 class="comment-title">Комментарии:</h2>
+                <p class="comment-count">Количество комментариев: {{ comment_list|length }}</p>
+                <div class="comment-guest">
+                    {% if comment_list %}
+                        {% for comment in comment_list %}
+                        <div class="comment">
+                            <h5 class="comment-author">{{ comment.author }}</h5>
+                            <p class="advert-date">Дата публикации: {{comment.created|date:"d.m.Y H:i:s" }}</p>
+                            {%if comment.updated != comment.created %}
+                                <p class="advert-date">Последнее изменение: {{ comment.updated|date:"d.m.Y H:i:s" }}</p>
+                            {% endif %}
+                            <p>{{ comment.content }}</p>
+                            {% if user.is_authenticated and user.is_superuser %}
+                            <div class="comment-edit">
+                                <form enctype="multipart/form-data" onsubmit="javascript:return false;">
+                                    <button formaction="{% url 'ads_app:comment-update-form' comment.id advert.id %}" class="update-comment-btn"><img src="media/icon/edit.png" width="20" alt=""></button>
+                                </form>
+                                <form enctype="multipart/form-data" action="{% url 'ads_app:comment-delete' comment.id advert.id %}">
+                                    <button class="delete-comment-btn"><img src="media/icon/delete.png" width="20"  alt=""></button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="nocomment"><b>Комментарий пока ещё никто не оставил. Будь первым!</b></p>
+                    {% endif %}
+                </div>
+                <div class="comment-form-box" id="comment-form">
+                    <form enctype="multipart/form-data" action="{% url 'ads_app:comment-create' advert.id %}" class="comment-form" method="POST"> 
+                        {% csrf_token %}
+                        <div class="input-comment-box"><input type="text" name="author" class="input-comment" placeholder="Введите ваше имя" id="author" required></div>
+                        <div class="textarea-comment-box"><textarea type="text" name="content" class="textarea-comment"  placeholder="Введите ваш комментарий" id="id_content" required></textarea></div>
+                        <button  class="add-comment-btn">Добавить комментарий</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+{% if user.is_authenticated %}
+    <script type="application/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript">
+        $(".add-tag-btn").on("click",function(){
+            if ($(".control-box").css('justify-content')=='flex-end')
+            {
+                $(".control-box").css({'display': 'flex', 'justify-content':'space-between'});
+                $(".add-tag-btn").html('&#9650');
+            }   
+            else
+            {
+                $(".control-box").css({'display': 'flex', 'justify-content':'flex-end'});
+                $(".add-tag-btn").html('&#9660');
+                $(".tag-form").trigger("reset");
+            }
+            $(".add-tag-box").toggle();
+        });
+        {% if user.is_superuser %}
+        $(".update-comment-btn").on("click",function(){
+            $(".update-comment-btn").hide();
+            $(".delete-comment-btn").hide();
+            $.ajax({
+                type: 'GET',
+                url: $(this).attr('formaction'),
+                success: function(template) {
+                    console.log(template)
+                    $('#comment-form').html(template);
+                }
+            });
+        });
+        {% endif %}
+    </script>
+{% endif %}
+{% endblock %}

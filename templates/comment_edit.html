@@ -1,0 +1,20 @@
+<form enctype="multipart/form-data" action="{% url 'ads_app:comment-update' comment.id advert_id %}" class="comment-form" method="POST"> 
+    {% csrf_token %}
+    <div class="input-comment-box"><input type="text" name="author" class="input-comment" placeholder="Введите ваше имя" id="author" value="{{ comment.author }}" required></div>
+    <div class="textarea-comment-box"><textarea type="text" name="content" class="textarea-comment" placeholder="Введите ваш комментарий" id="id_content" required>{{ comment.content }}</textarea></div>
+    <button class="add-comment-btn" name="btnUpdateComment">Изменить комментарий</button>
+</form>
+<button formaction="{% url 'ads_app:comment-cancel' advert_id %}" class="cancel-comment-btn"><img src="media/icon/delete.png" width="20" alt=""></button>
+<script type="text/javascript">
+    $(".cancel-comment-btn").on("click",function(){
+        $(".update-comment-btn").show();
+        $(".delete-comment-btn").show();
+        $.ajax({
+            type: 'GET',
+            url: $(this).attr('formaction'),
+            success: function(template) {
+                $('#comment-form').html(template);
+            }
+        });
+    });
+</script>

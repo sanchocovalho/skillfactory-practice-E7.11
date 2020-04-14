@@ -1,0 +1,6 @@
+<form enctype="multipart/form-data" action="{% url 'ads_app:comment-create' advert.id %}" class="comment-form" method="POST"> 
+    {% csrf_token %}
+    <div class="input-comment-box"><input type="text" name="author" class="input-comment" placeholder="Введите ваше имя" id="author" required></div>
+    <div class="textarea-comment-box"><textarea type="text" name="content" class="textarea-comment"  placeholder="Введите ваш комментарий" id="id_content" required></textarea></div>
+    <button  class="add-comment-btn">Добавить комментарий</button>
+</form>

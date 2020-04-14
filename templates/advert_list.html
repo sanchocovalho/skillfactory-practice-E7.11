@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Доска объявлений{% endblock %}
+
+{% block styles %}
+<link type="text/css" href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <header class="header">
+        <div class="main-box">
+            <div class="user-box">
+                {% if user.is_authenticated %}
+                Привет, {{ user.username }}!
+                {% else %}
+                Привет, гость!
+                {% endif %}
+            </div>
+            <h2 class="page-title">Доска объявлений</h2>
+            {% if user.is_authenticated %}
+            <form class="logout-box" method="POST">
+                {% csrf_token %}
+                <button class="add-advert-btn" type="submit" name="btnAddAdvert">Создать объявление</button>
+                <button class="logout-btn" type="submit" name="btnLogOut">Выйти</button>
+            </form>
+            {% else %}
+            <button class="show-login-btn">Войти</button>
+            {% endif %}
+        </div>
+    </header>
+    <div class="header">
+        <div>
+            <form class="form-search-box" method="GET" action="{% url 'ads_app:advert-list' %}">
+                <div class="input-search-box"><input class="input-search" type="text" placeholder="Поиск" aria-label="Search" name="search"></div>
+                <div class="combobox-box">
+                <select type="text" class="combobox" name="cmbCategoty" id="combobox">
+                    <option class="combobox-content" value="0" selected>Все категории</option>
+                    {% for category in category_list %}
+                    <option class="combobox-content" value="{{ forloop.counter }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+                <button class="search-btn" name="btnSearch">Поиск</button>
+            </form>
+        </div>
+    </div>
+    {%if errmsg == 1 %}
+    <div class="container-fluid alert" role="alert">
+        <strong>Неверный логин или пароль. Попробуйте ввести ещё раз!</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <div aria-hidden="true">&times;</div>
+        </button>
+    </div>
+    {% endif %}
+    <div class="container-fluid">
+        <div class="card-row">
+            {% for advert in advert_list %}
+            <a class="card-box" href="{% url 'ads_app:advert-detail' advert.id %}">
+                <div class="card-img">
+                {%if advert.photo %}
+                <img src="{{ advert.photo.url }}" class="card-photo" alt="">
+                {% else %}
+                <img src="media/photos/default.jpg" class="card-photo" alt="">
+                {% endif %}
+                </div>
+                <div class="card-name">
+                    <h4 class="card-title">{{ advert.title|truncatechars:50 }}</h4>
+                </div>
+                <div class="card-date">
+                    <p class="card-title">{{ advert.created|date:"d.m.Y H:i" }}</p>
+                </div>
+                <div class="card-desc">
+                    <p class="card-title">{{ advert.content|truncatechars:200 }}</p>
+                </div>
+            </a>
+          {% endfor %}
+        </div>
+    </div>
+    {% if not user.is_authenticated %}
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Вход</h1>
+            <form class="login-form" id="login-form" method="POST">
+                {% csrf_token %}
+                <input class="input-box" type="text" name="username" autofocus="" required id="id_username" placeholder="Логин">
+                <input class="input-box" type="password" name="password" required id="id_password" placeholder="Пароль">
+                <button class="login-btn" type="submit" name="btnLogIn">Войти</button>
+                <div class="hide-login-btn"><span>&times;</span></div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+{% if not user.is_authenticated %}
+    <script type="application/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
+    <script type="application/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function closeLoginWindow(){
+            $(".container-fluid").removeClass('blurred');
+            $("body").css({'overflow':'auto'});
+            $(".container-fluid").css({'pointer-events':'auto'})
+            $(".login-container").fadeOut();
+            $("#login-form").trigger("reset");
+        }
+        $(function() {
+            $(document).mouseup(function(e){
+                let div = $(".login-container");
+                if (!div.is(e.target)
+                        && div.has(e.target).length === 0) {
+                        closeLoginWindow();
+                }
+            });
+        });
+        $(".show-login-btn").on("click",function(){
+            $(".container-fluid").addClass('blurred');
+            $("body").css({'overflow':'hidden'});
+            $(".container-fluid").css({'pointer-events':'none'})
+            $(".login-container").fadeIn();
+        });
+        $(".hide-login-btn").on("click",function(){
+            closeLoginWindow();
+        });
+    </script>
+{% endif %}
+{% endblock %}

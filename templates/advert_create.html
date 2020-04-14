@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать объявление{% endblock %}
+
+{% block styles %}<link type="text/css" href="/static/css/bootstrap.min.css" rel="stylesheet">{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form enctype="multipart/form-data" class="mx-auto mt-3 w-75" method="POST"> 
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input class="btn btn-success my-3" type="submit" value="Сохранить">
+                    <a class="btn btn-danger my-3" href="{%url 'ads_app:advert-list'%}">Отмена</a>
+                </form>
+            </div>
+        </div>  
+    </div>
+{% endblock %}
