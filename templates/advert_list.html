@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    <header class="header">
+    <header class="container-fluid header">
         <div class="main-box">
             <div class="user-box">
                 {% if user.is_authenticated %}
@@ -28,7 +28,7 @@
             {% endif %}
         </div>
     </header>
-    <div class="header">
+    <div class="container-fluid header">
         <div>
             <form class="form-search-box" method="GET" action="{% url 'ads_app:advert-list' %}">
                 <div class="input-search-box"><input class="input-search" type="text" placeholder="Поиск" aria-label="Search" name="search"></div>
